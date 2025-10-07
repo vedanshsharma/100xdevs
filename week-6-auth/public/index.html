@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+        <script>
+            async function signup(){
+                const username = document.getElementById("signup-username").value;
+                const password = document.getElementById("signup-password").value;
+
+                const response = await axios.post("http://localhost:3000/signup" , {
+                    username : username,
+                    password : password
+                });
+                // console.log(response);
+                alert(response.data.message);
+            }
+            async function signin() {
+                const username = document.getElementById("signin-username").value;
+                const password = document.getElementById("signin-password").value;
+
+                const response = await axios.post("http://localhost:3000/signin" , {
+                    username : username,
+                    password : password
+                });
+                localStorage.setItem("token" , response.data.token);
+                alert('Successfully Signed In');
+            }
+            async function logout() {
+               localStorage.removeItem("token");
+            }
+            async function getUserInformation() {
+                const token = localStorage.getItem("token");
+
+                if(token){
+                    const response = await axios.get("http://localhost:3000/me"  , {
+                        headers : {
+                            authorization : token
+                        }
+                    });
+                    document.getElementById("information").innerHTML = response.data.username;
+                    
+                }
+            }
+        </script>
+        <script> 
+            getUserInformation();
+        </script>
+    </head>
+    <body>
+        <div id="signup">Signup
+            <input id="signup-username" type="text" name="username" placeholder="username">
+            <input id="signup-password" type="text" name="password" placeholder="password">
+            <button onclick="signup()">Submit</button>
+        </div>
+        <div id="signin">Signin
+            <input id="signin-username" type="text" name="username" placeholder="username">
+            <input id="signin-password" type="text" name="password" placeholder="password">
+            <button onclick="signin()">Submit</button>
+        </div>
+        <div>
+            User information:
+            <div id="information"></div>
+        </div>
+        <div>
+            <button onclick="logOut()">Log Out</button>
+        </div>
+        
+        <script src="" async defer></script>
+    </body>
+</html>

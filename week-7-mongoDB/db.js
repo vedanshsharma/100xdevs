@@ -2,7 +2,8 @@ import mongoose, { model, mongo } from "mongoose";
 import { string } from "zod";
 
 const Schema = mongoose.Schema;
-const ObjectID = mongoose.ObjectID;
+const ObjectID = Schema.ObjectId;
+
 
 const User = new Schema({
     name : String,
@@ -13,13 +14,13 @@ const User = new Schema({
 const ToDo = new Schema({
     userId : ObjectID,
     done : Boolean,
-    description : string
+    description : String
 });
 
-const UserModel = model('users' , User);
-const ToDoModel = model('todos' , ToDo);
+export const UserModel = model('users' , User);
+export const TodoModel = model('todos' , ToDo);
 
-module.exports = {
-    UserModel,
-    ToDoModel
-}
+// module.exports = {
+//     UserModel,
+//     TodoModel
+// }

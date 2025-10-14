@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 //import environment variables 
 dotenv.config();
 const jwt_secret = process.env.JWT_SECRET;
 
-export function auth(req , res , next){
+export default function auth(req , res , next){
     const token = req.headers.authorization;
     if(!token){
         return res.status(401).send({

@@ -26,6 +26,11 @@ app.use(express.json());
 
 app.post("/signup" , async function(req , res){
     const { email , password , name } = req.body; 
+    if (!email || !password || !name) {
+        return res.status(400).json({
+            message: "Missing required fields: email, password, and name are required."
+        });
+    }
     try{
         await UserModel.create({
         email ,
@@ -51,8 +56,8 @@ app.post("/signin" ,async function(req , res){
     try{
         const { email , password } = req.body;
         const response = await UserModel.findOne({
-        email ,
-        password 
+            email ,
+            password 
         });
         if(response){
             // console.log(response);

@@ -5,6 +5,7 @@ import { dirname } from 'path';
 import mongoose, { mongo } from "mongoose";
 import dotenv from 'dotenv';
 import { UserModel } from "./db.js";
+import auth from "./auth.js";
 import jwt from 'jsonwebtoken';
 
 //import environment variables 
@@ -48,15 +49,33 @@ app.post("/signup" , async function(req , res){
 
 app.post("/signin" ,async function(req , res){
     try{
+        const { email , password } = req.body;
         const response = await UserModel.findOne({
         email ,
         password 
         });
+        if(response){
+            // console.log(response);
+            const token = jwt.sign({
+                id : response._id.toString()  
+            } , jwt_secret);
+            res.status(200).json({
+                token : token
+            });
+        }
+        else{
+            res.status(403).json({
+                message : "Incorrect creds"
+            })
+        }
     }
     catch(err){
-        console.log(err)
+        console.log(err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+app.use(auth);
 
 app.post("/todo" , async function name(req , res) {
     

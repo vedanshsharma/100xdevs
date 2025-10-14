@@ -1,10 +1,14 @@
 import mongoose, { model, mongo } from "mongoose";
 import bcrypt from "bcrypt"; 
+import dotenv from 'dotenv';
 import { string } from "zod";
+
+//import environment variables 
+dotenv.config();
+const saltRound = process.env.BCRYPT_SALT_ROUNDS;
 
 const Schema = mongoose.Schema;
 const ObjectID = Schema.ObjectId;
-const saltRound = 100;
 
 const User = new Schema({
     name : String,

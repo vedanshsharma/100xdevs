@@ -55,14 +55,18 @@ app.post("/signup" , async function(req , res){
 app.post("/signin" ,async function(req , res){
     try{
         const { email , password } = req.body;
-        const response = await UserModel.findOne({
-            email ,
-            password 
+        const user = await UserModel.findOne({
+            email 
         });
-        if(response){
+        if(!user){
+            return res.status(401).json({ message : "Invalid email or password"});
+        }
+        const isMatch = await user.comparePassword(password);
+        
+        if(isMatch){
             // console.log(response);
             const token = jwt.sign({
-                id : response._id.toString()  
+                id : user._id.toString()  
             } , jwt_secret);
             res.status(200).json({
                 token : token

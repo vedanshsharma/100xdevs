@@ -5,10 +5,10 @@ import { string } from "zod";
 
 //import environment variables 
 dotenv.config();
-const saltRound = process.env.BCRYPT_SALT_ROUNDS;
+const saltRound = parseInt(process.env.BCRYPT_SALT_ROUNDS);
 
 const Schema = mongoose.Schema;
-const ObjectID = Schema.ObjectId;
+// const ObjectID = Schema.ObjectId;
 
 const User = new Schema({
     name : String,
@@ -27,18 +27,17 @@ User.pre('save' , async function(next) {
     try {
         // 1. generate hash
         const hash = await bcrypt.hash(user.password , saltRound);
-
         //2. replace the plain text password with the hash password
         user.password = hash;
-
         //3. continue the save process
         next();
     } catch (err) {
-        next(err); /// pass the error to the next mongoose
+        console.log(err);
+        return next(err); /// pass the error to the next mongoose
     }
-})
+});
 
-User.method.comparePassword = async function(password){
+User.methods.comparePassword = async function(password){
     // Uses bcrypt to compare the plaintext candidatePassword with the stored hash
     // 'this.password' is the hashed password from the database
     // 'passassword' is the plaintext password from the login form
@@ -46,9 +45,14 @@ User.method.comparePassword = async function(password){
 }
 
 const ToDo = new Schema({
-    userId : ObjectID,
+    userId : {
+        type: Schema.Types.ObjectId ,// <-- CRITICAL FIX: This tells Mongoose it's an ObjectId
+        ref: 'users',
+        required: true                  // Optional, but good practice for reference
+    },
     done : Boolean,
-    description : String
+    description: { type: String, required: true } ,
+    createdOn : String
 });
 
 export const UserModel = model('users' , User);

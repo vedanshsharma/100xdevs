@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import mongoose, { mongo } from "mongoose";
 import dotenv from 'dotenv';
-import { UserModel } from "./db.js";
+import { UserModel , TodoModel } from "./db.js";
 import auth from "./auth.js";
 import jwt from 'jsonwebtoken';
 
@@ -87,11 +87,99 @@ app.post("/signin" ,async function(req , res){
 app.use(auth);
 
 app.post("/todo" , async function name(req , res) {
-    
+    const { description , done } = req.body;
+    const userId = req.id;
+    const now = new Date();
+    const createdOn = now.toLocaleString();
+    try{
+        await TodoModel.create({
+            userId ,
+            description ,
+            done,
+            createdOn
+        });
+        res.status(201).json({ message : "To do created."})
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 });
 
 app.get("/todos" , async function name(req , res) {
+    const userId = req.id;
+    try{
+        const response = await TodoModel.find({
+            userId :userId
+        }).populate('userId').exec();
+        if(response.length === 0){
+           return res.status(404).json({ message: "No todos found for this user." });
+        }
+        return res.status(200).json(response);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.delete('/todo/:id' , async function(req , res){
+    const userId = req.id; 
+    const todoId = req.params.id; 
+    try{
+        const response = await TodoModel.findOneAndDelete({
+            _id : todoId,
+            userId : userId
+        });
+        if(!response){
+            return res.status(404).json({
+                message : "Todo item not found or you do not have permission to delete it."
+            });
+        }
+        res.status(200).json(response);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+app.patch('/todo/:id' , async function(req , res){
+    const userId = req.id;
+    const todoId = req.params.id;
+    const updates = req.body;
     
+    if(Object.keys(updates).length === 0){
+        return res.status(400).json({ message : "Update body cannot be empty." });
+    }
+    try {
+        const response = await TodoModel.findOneAndUpdate({
+            _id : todoId,
+            userId : userId
+        },
+        {
+            $set : updates
+        },
+        {
+            new : true,
+            runValidators : true
+        });
+
+        if(!response){
+            return res.status(404).json({
+                message : "Todo item not found or you do not have permission to delete it."
+            });
+        }
+        res.status(200).json(response);
+    } catch (err) {
+        console.log(err);
+
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ message: err.message });
+        }
+
+        res.status(500).json({ message: 'Internal Server Error' });c
+    }
 });
 
 app.listen(port);

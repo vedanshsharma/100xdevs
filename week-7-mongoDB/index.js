@@ -67,7 +67,9 @@ app.post("/signin" ,async function(req , res){
             // console.log(response);
             const token = jwt.sign({
                 id : user._id.toString()  
-            } , jwt_secret);
+            } , jwt_secret , {
+                expiresIn : "1h"
+            });
             res.status(200).json({
                 token : token
             });

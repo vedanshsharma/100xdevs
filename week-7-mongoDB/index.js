@@ -8,6 +8,7 @@ import { UserModel , TodoModel } from "./db.js";
 import auth from "./auth.js";
 import jwt from 'jsonwebtoken';
 import validate from "./validationMiddleware.js";
+import { signupSchema , createTodoSchema , todoUpdateSchema } from './validationSchemas.js';
 
 //import environment variables 
 dotenv.config();
@@ -89,7 +90,7 @@ app.post("/signin" ,async function(req , res){
 
 app.use(auth);
 
-app.post("/todo" , async function name(req , res) {
+app.post("/todo" , validate(createTodoSchema) ,async function name(req , res) {
     const { description , done } = req.body;
     const userId = req.id;
     const now = new Date();
@@ -147,7 +148,7 @@ app.delete('/todo/:id' , async function(req , res){
     }
 });
 
-app.patch('/todo/:id' , async function(req , res){
+app.patch('/todo/:id' , validate(todoUpdateSchema) , async function(req , res){
     const userId = req.id;
     const todoId = req.params.id;
     const updates = req.body;

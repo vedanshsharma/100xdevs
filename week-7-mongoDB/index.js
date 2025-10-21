@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { UserModel , TodoModel } from "./db.js";
 import auth from "./auth.js";
 import jwt from 'jsonwebtoken';
+import validate from "./validationMiddleware.js";
 
 //import environment variables 
 dotenv.config();
@@ -24,13 +25,13 @@ mongoose.connect(connection_string);
 const app = express();
 app.use(express.json());
 
-app.post("/signup" , async function(req , res){
+app.post("/signup" , validate(signupSchema) , async function(req , res){
     const { email , password , name } = req.body; 
-    if (!email || !password || !name) {
-        return res.status(400).json({
-            message: "Missing required fields: email, password, and name are required."
-        });
-    }
+    // if (!email || !password || !name) {
+    //     return res.status(400).json({
+    //         message: "Missing required fields: email, password, and name are required."
+    //     });
+    // }
     try{
         await UserModel.create({
         email ,

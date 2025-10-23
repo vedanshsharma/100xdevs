@@ -9,11 +9,11 @@ const saltRound = parseInt(process.env.BCRYPT_SALT_ROUNDS);
 const Schema = mongoose.Schema;
 
 const baseOptions = {
-    timestamps : true,
-    discriminatorkey : 'role',
-    // collection : 'users',
-    versionKey : false
-}
+        timestamps : true,
+        discriminatorKey : 'role',
+        // collection : 'users',
+        versionKey : false
+    }
 
 //Base User schema
 const BaseUserSchema = new Schema({
@@ -23,7 +23,7 @@ const BaseUserSchema = new Schema({
 } , baseOptions);
 
 BaseUserSchema.pre('save' , async function (next) {
-    const user = this.user; // 'this' refers to the Mongoose document being saved
+    const user = this; // 'this' refers to the Mongoose document being saved
     //only has if the password has been modified
     if(!user.isModified('password')){
         return next();
@@ -42,10 +42,17 @@ BaseUserSchema.methods.comparePassword = async function(password) {
     return bcrypt.compare(password , this.password);
 }
 
-export const UserModel = mongoose.model('users' , BaseUserSchema);
+const BaseModel = mongoose.model('users' , BaseUserSchema);
+
+//User Schema
+export const UserModel = BaseModel.discriminator('user' , 
+    new Schema({    
+        permissionLevel : { type : Number , default : 1}
+    })
+);
 
 // Admin Schema 
-export const AdminModel = UserModel.discriminator('admin' , 
+export const AdminModel = BaseModel.discriminator('admin' , 
     new Schema({    
         permissionLevel : { type : Number , default : 10}
     })

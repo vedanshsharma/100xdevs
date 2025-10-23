@@ -46,7 +46,8 @@ userRouter.post('/signin' ,async (req , res) => {
         const isMatch = await user.comparePassword(password);
         if(isMatch){
             const token = jwt.sign({
-                id : user._id.toString()
+                id : user._id.toString(),
+                role : user.role
             } , jwt_secret , {
                 expiresIn : "1h"
             });

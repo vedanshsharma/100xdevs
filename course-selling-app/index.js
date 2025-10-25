@@ -6,8 +6,6 @@ import dotenv from 'dotenv';
 import connectDB from './models/db.js';
 import userRouter from './routes/userRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
-// import validate from "./validationMiddleware.js";
-// import { signupSchema , createTodoSchema , todoUpdateSchema } from './validationSchemas.js';
 
 //import environment variables 
 dotenv.config();

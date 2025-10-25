@@ -1,10 +1,13 @@
 import express, {Router} from 'express';
-import { AdminModel } from '../models/Users.js';
+import {createAccount , authenticateAndGenerateToken } 
+    from '../services/userService.js';
 import auth from '../middleware/auth.js';
+import validate from '../middleware/validationMiddleware.js';
+import { signupSchema } from '../schemas/validationSchema.js';
 
 const adminRouter = Router();
 
-adminRouter.post('/signup' ,async (req , res) =>{
+adminRouter.post('/signup' , validate(signupSchema) , async (req , res) =>{
     const { email , password , name } = req.body;
     if(!email || !password || !name){
         return res.status(400).json({
@@ -12,11 +15,11 @@ adminRouter.post('/signup' ,async (req , res) =>{
         });
     }
     try {
-        await AdminModel.create({
+        await createAccount({
             email,
             password,
             name
-        });
+        } , 'admin');
         res.status(201).json({
             message : "You are signed up"
         });
@@ -34,32 +37,14 @@ adminRouter.post('/signup' ,async (req , res) =>{
 adminRouter.post('/signin' ,async (req , res) => {
     try{
         const { email , password } = req.body;
-        const user = await AdminModel.findOne({
-            email 
-        });
-        if(!user){
-            return res.status(401).json({
-                "message" : "Invalid email or password"
-            })
-        }
-        const isMatch = await user.comparePassword(password);
-        if(isMatch){
-            const token = jwt.sign({
-                id : user._id.toString(),
-                role : user.role
-            } , jwt_secret , {
-                expiresIn : "1h"
-            });
-            res.status(200).json({
-                token : token
-            });
-        }
-        else{
-            res.status(403).json({
-                message : "Invalid email or password"
-            })
-        }
+        const token = await authenticateAndGenerateToken(email , password , 'admin');
+        res.status(200).json({token});
     }catch(error){
+        if(error.message === 'UserNotFound' || error.message === 'InvalidPassword'){
+            return res.status(401).json({
+                message : "Invalid email or password"
+            });
+        }
         console.log(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }

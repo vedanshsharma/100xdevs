@@ -15,9 +15,10 @@ export default function auth(req , res , next){
     try {
         const response = jwt.verify(token , JWT_SECRET);
         req.id = response.id;
+        req.role = response.role;
         next();
     } catch (error) {
-        console.error("JWT Verification Error:", err.message); 
+        console.error("JWT Verification Error:", error.message); 
         res.status(401).send({
         message : "Invalid Token"
         });

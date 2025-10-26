@@ -171,7 +171,7 @@ app.patch('/todo/:id' , validate(todoUpdateSchema) , async function(req , res){
 
         if(!response){
             return res.status(404).json({
-                message : "Todo item not found or you do not have permission to delete it."
+                message : "Todo item not found or you do not have permission to update it."
             });
         }
         res.status(200).json(response);

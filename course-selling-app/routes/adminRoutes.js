@@ -2,18 +2,16 @@ import express, {Router} from 'express';
 import {createAccount , authenticateAndGenerateToken } 
     from '../services/userService.js';
 import auth from '../middleware/auth.js';
+import adminAuth from '../middleware/adminAuth.js';
 import validate from '../middleware/validationMiddleware.js';
 import { signupSchema } from '../schemas/validationSchema.js';
+import { ca } from 'zod/v4/locales';
+import { get } from 'mongoose';
 
 const adminRouter = Router();
 
 adminRouter.post('/signup' , validate(signupSchema) , async (req , res) =>{
     const { email , password , name } = req.body;
-    if(!email || !password || !name){
-        return res.status(400).json({
-            message: "Missing required fields: email, password, and name are required."
-        });
-    }
     try {
         await createAccount({
             email,
@@ -48,6 +46,12 @@ adminRouter.post('/signin' ,async (req , res) => {
         console.log(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
+});
+
+adminRouter.use(auth);
+adminRouter.use(adminAuth);
+
+adminRouter.get('/profile' , async (req , res) => {
 });
 
 export default adminRouter;

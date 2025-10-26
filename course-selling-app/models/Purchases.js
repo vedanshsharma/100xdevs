@@ -16,7 +16,7 @@ const purchasesSchema = new Schema({
     enrolledDate: { type: Date, default: Date.now },
     expireAt : {
         type : Date,
-        default : function(){
+        default : () =>{
             const date = new Date();
             date.setMonth(date.getMonth() + 6 );
             return date;

@@ -1,6 +1,11 @@
-import {AdminModel} from '../models/Users.js';
 
-export default async function adminAuth(req , res , next) {
-    
-    
+export default function adminAuth(req , res , next) {
+    const role = req.role;
+    // console.log(role);
+    if(role !== 'admin'){
+        return res.status(403).json({ 
+            message: "Forbidden. Admin privileges required." 
+        });
+    }
+    next();
 }
